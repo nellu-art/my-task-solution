@@ -1,8 +1,8 @@
 export class Node {
-  constructor(id, value, parent = null) {
+  constructor(id, value, parentId = null) {
     this.id = id;
     this.value = value;
-    this.parent = parent;
+    this.parentId = parentId;
     this.children = [];
     this.deleted = false;
   }
