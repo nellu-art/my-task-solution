@@ -3,7 +3,7 @@ import { Box, Editable, EditableInput, EditablePreview, Button } from '@chakra-u
 
 export function RenderNode({
   node,
-  nestingLevel = 0,
+  nestingLevel,
   onSelectNode,
   selectedNodeId,
   isEditable = false,
@@ -52,7 +52,7 @@ const Node = ({ value, leftOffset, deleted, isEditable, selected, onSelect, onEd
         onSubmit={onEditDone}
       >
         <EditablePreview />
-        <EditableInput onBlur={(e) => onEditDone(e.target.value)} />
+        <EditableInput onBlur={(e) => onEditDone?.(e.target.value)} />
       </Editable>
     );
   }
