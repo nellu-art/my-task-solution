@@ -8,6 +8,7 @@ import {
   ArrowLeftIcon,
   AddIcon,
   EditIcon,
+  DeleteIcon,
 } from '@chakra-ui/icons';
 
 import {
@@ -16,6 +17,7 @@ import {
   loadNodeToCache,
   addNodeToCache,
   editNode,
+  deleteNode,
 } from './api/endpoints';
 
 import { RenderNode } from './components/RenderNode';
@@ -216,39 +218,58 @@ function CachedTreeView({ cache, refresh }) {
           );
         })}
       </Box>
-      <Box mt={3} display='flex' alignItems='center' gap={2}>
+      <Box mt={3} display='flex'>
+        <Box display='flex' gap={2} flex={1}>
+          <Button
+            leftIcon={<AddIcon />}
+            colorScheme='blue'
+            variant='outline'
+            isDisabled={!selectedNodeId}
+            onClick={() => {
+              if (!selectedNodeId) {
+                return;
+              }
+
+              addNodeToCache(`child ${Date.now()}`, selectedNodeId);
+              refresh();
+              setSelectedNodeId(null);
+            }}
+          >
+            Add
+          </Button>
+          <Button
+            leftIcon={<EditIcon />}
+            colorScheme='blue'
+            variant='outline'
+            isDisabled={!selectedNodeId}
+            onClick={() => {
+              if (!selectedNodeId) {
+                return;
+              }
+
+              setEditNodeId(selectedNodeId);
+              setSelectedNodeId(null);
+            }}
+          >
+            Edit
+          </Button>
+        </Box>
         <Button
-          leftIcon={<AddIcon />}
-          colorScheme='blue'
-          variant='outline'
+          leftIcon={<DeleteIcon />}
+          colorScheme='red'
+          variant='solid'
           isDisabled={!selectedNodeId}
           onClick={() => {
             if (!selectedNodeId) {
               return;
             }
 
-            addNodeToCache(`child ${Date.now()}`, selectedNodeId);
+            deleteNode(selectedNodeId);
             refresh();
             setSelectedNodeId(null);
           }}
         >
-          Add
-        </Button>
-        <Button
-          leftIcon={<EditIcon />}
-          colorScheme='blue'
-          variant='outline'
-          isDisabled={!selectedNodeId}
-          onClick={() => {
-            if (!selectedNodeId) {
-              return;
-            }
-
-            setEditNodeId(selectedNodeId);
-            setSelectedNodeId(null);
-          }}
-        >
-          Edit
+          Delete
         </Button>
       </Box>
     </>

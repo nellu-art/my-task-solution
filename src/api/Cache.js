@@ -28,7 +28,7 @@ export class Cache {
   }
 
   delete(id) {
-    const element = this.data[id];
+    const element = this.changes[id] ?? this.data[id];
     this.changes[id] = { ...element, deleted: true };
     element.children.forEach((childId) => {
       this.delete(childId);

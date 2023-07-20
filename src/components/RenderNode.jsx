@@ -20,6 +20,7 @@ export function RenderNode({
           onSelect={() => onSelectNode(node.id)}
           isEditable={isEditable && editNodeId === node.id}
           onEditDone={onEditDone}
+          deleted={node.deleted}
         />
       </Box>
       {node.children.map((child) => {

@@ -17,6 +17,10 @@ export function editNode(id, value) {
   cache.edit(id, value);
 }
 
+export function deleteNode(id) {
+  cache.delete(id);
+}
+
 export function readCache() {
   return { ...cloneDeep(cache.data), ...cloneDeep(cache.changes) };
 }
