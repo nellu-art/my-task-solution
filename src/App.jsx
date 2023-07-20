@@ -91,7 +91,7 @@ function DBTreeView() {
 
   return (
     <>
-      <Box height='500px' border='1px solid black' p={2} overflowY='auto'>
+      <Box height='500px' border='1px solid black' p={2} overflow='auto'>
         {displayNodes.map((node) => {
           return (
             <RenderNode
@@ -146,8 +146,8 @@ function App() {
         Add new node
       </Button>
       <Box display='flex'>
-        <Box flex={1} />
-        <Box flex={1}>
+        <Box flex={1} maxWidth='50%' />
+        <Box flex={1} maxWidth='50%'>
           <DBTreeView />
         </Box>
       </Box>

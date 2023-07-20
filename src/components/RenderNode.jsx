@@ -13,7 +13,7 @@ export function RenderNode({
       <Box mb={1}>
         <Node
           value={node.value}
-          leftOffset={nestingLevel * 2}
+          leftOffset={nestingLevel * 16}
           selected={selectedNodeId === node.id}
           onSelect={() => onSelectNode(node.id)}
           isEditable={isEditable}
@@ -51,7 +51,7 @@ const Node = ({ value, leftOffset, deleted, isEditable, selected, onSelect }) =>
       variant={selected ? 'outline' : 'ghost'}
       isDisabled={deleted}
       onClick={onSelect}
-      ml={leftOffset}
+      ml={`${leftOffset}px`}
     >
       {value}
     </Button>
