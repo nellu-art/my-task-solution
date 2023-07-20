@@ -36,3 +36,8 @@ export function readCache() {
 export function readDatabase(offset) {
   return db.read(offset);
 }
+
+export function resetAll() {
+  db.reset();
+  cache.reset();
+}

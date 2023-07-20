@@ -50,7 +50,7 @@ function App() {
 
   return (
     <Container width='100vw' height='100vh' pt={10} maxWidth='60vw'>
-      <Box ref={topContainerRef} />
+      <Box ref={topContainerRef} maxWidth='45%' pr={4} />
       <Box display='flex' gap={4}>
         <Box flex={1} maxWidth='45%'>
           <CachedTreeView
@@ -74,7 +74,7 @@ function App() {
             }
             onCacheChanged={() => setIsCacheStale(true)}
             isDBUpdated={isDBUpdated}
-            onDoneDBUpdated={() => setIsDBUpdated(false)}
+            onDoneDBUpdate={() => setIsDBUpdated(false)}
           />
         </Box>
       </Box>

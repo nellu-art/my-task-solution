@@ -54,6 +54,11 @@ export class Cache {
     this.changes = {};
   }
 
+  reset() {
+    this.data = {};
+    this.changes = {};
+  }
+
   saveToCache() {
     Object.keys(this.changes).forEach((id) => {
       this.data[id] = this.changes[id];

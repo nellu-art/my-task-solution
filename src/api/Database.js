@@ -83,6 +83,10 @@ export class Database {
     });
   }
 
+  reset() {
+    this.data = cloneDeep(defaultData);
+  }
+
   read(offset) {
     const start = offset ?? 0;
     const end = start + DEFAULT_LIMIT;
