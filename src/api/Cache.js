@@ -54,6 +54,7 @@ export class Cache {
     this.saveToCache();
     this.database.save(this.changes);
     this.changes = {};
+    this.refreshCache();
   }
 
   cancel() {
@@ -68,6 +69,12 @@ export class Cache {
   saveToCache() {
     Object.keys(this.changes).forEach((id) => {
       this.data[id] = this.changes[id];
+    });
+  }
+
+  refreshCache() {
+    Object.keys(this.data).forEach((id) => {
+      this.fetch(id);
     });
   }
 }
