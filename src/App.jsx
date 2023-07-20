@@ -1,59 +1,16 @@
-import { PropTypes } from 'prop-types';
-import { Box, Button } from '@chakra-ui/react';
-import { useState } from 'react';
+import { Box, Button, Container, IconButton, Badge } from '@chakra-ui/react';
+import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
+import { useEffect, useState } from 'react';
 
-import { Database } from './api/Database';
-import { Cache } from './api/Cache';
+import { readDatabase } from './api/endpoints';
 
-import './App.css';
-
-const db = new Database();
-const cache = new Cache(db);
-
-cache.fetch(db.root.id);
-
-cache.add('Hello', db.root.id);
-
-function RenderNode({ node, offset = 0, onSelectNode, selectedNodeId }) {
-  return (
-    <>
-      <Box
-        pl={offset * 2}
-        textAlign='left'
-        pt={1}
-        onClick={() => onSelectNode(node.id)}
-        cursor='pointer'
-        border={selectedNodeId === node.id && '2px solid green'}
-      >
-        {node.value}
-      </Box>
-      {node.children.map((child) => {
-        return (
-          <RenderNode
-            key={child.id}
-            node={child}
-            offset={offset + 1}
-            onSelectNode={onSelectNode}
-            selectedNodeId={selectedNodeId}
-          />
-        );
-      })}
-    </>
-  );
-}
-
-RenderNode.propTypes = {
-  node: PropTypes.object.isRequired,
-  offset: PropTypes.number.isRequired,
-  onSelectNode: PropTypes.func.isRequired,
-  selectedNodeId: PropTypes.string,
-};
+import { RenderNode } from './components/RenderNode';
 
 function mapNodeChildrenWithData(node, data) {
   return {
     ...node,
     children: node.children
-      .map((childId) => data[childId] ?? null)
+      .map((childId) => data.find((item) => item.id === childId))
       .filter((value) => !!value)
       .map((child) => mapNodeChildrenWithData(child, data)),
   };
@@ -67,52 +24,134 @@ function isChildOf(node, parent) {
   return parent.children.some((child) => isChildOf(node, child));
 }
 
-function App() {
+function DBTreeView() {
+  const [nodes, setNodes] = useState([]);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [pagination, setPagination] = useState({
+    offset: 0,
+  });
 
-  const data = { ...cache.data, ...cache.changes };
-
-  const displayData = Object.values(data).reduce((result, node) => {
+  const displayNodes = nodes.reduce((result, node, _, list) => {
     const isIncluded = result.some((item) => isChildOf(node, item));
 
     if (isIncluded) {
       return result;
     }
 
-    const newNode = mapNodeChildrenWithData(node, data);
+    const newNode = mapNodeChildrenWithData(node, list);
 
     result.push(newNode);
 
     return result;
   }, []);
 
+  const totalPages = Math.ceil(pagination.total / pagination.limit);
+  const selectedPage = Math.floor(pagination.offset / pagination.limit) + 1;
+
+  const handleOpenNextPage = () => {
+    const newOffset = pagination.offset + pagination.limit;
+
+    if (newOffset > pagination.total) {
+      return;
+    }
+
+    setPagination((prev) => ({
+      ...prev,
+      offset: newOffset,
+    }));
+  };
+
+  const handleOpenPrevPage = () => {
+    const newOffset = pagination.offset - pagination.limit;
+
+    if (newOffset < 0) {
+      return;
+    }
+
+    setPagination((prev) => ({
+      ...prev,
+      offset: newOffset,
+    }));
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const newData = await readDatabase(pagination.offset);
+
+      setNodes(newData.data);
+      setPagination(newData.pagination);
+    };
+
+    try {
+      fetchData();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [pagination.offset]);
+
   return (
     <>
-      <Button
-        onClick={() => {
-          if (!selectedNodeId) {
-            return;
-          }
-          cache.add('New node', selectedNodeId);
-          setSelectedNodeId(null);
-        }}
-      >
-        Add new node
-      </Button>
-      <Box>
-        {displayData.map((node) => {
+      <Box height='500px' border='1px solid black' p={2} overflowY='auto'>
+        {displayNodes.map((node) => {
           return (
             <RenderNode
               key={node.id}
               node={node}
-              offset={0}
+              nestingLevel={0}
               onSelectNode={setSelectedNodeId}
               selectedNodeId={selectedNodeId}
             />
           );
         })}
       </Box>
+      <Box mt={3} display='flex' justifyContent='flex-end' alignItems='center'>
+        <IconButton
+          variant='outline'
+          colorScheme='teal'
+          aria-label='Go back'
+          icon={<ArrowBackIcon />}
+          onClick={handleOpenPrevPage}
+          isDisabled={selectedPage === 1}
+        />
+        <Badge ml='1' mr='1'>
+          {selectedPage} / {totalPages}
+        </Badge>
+        <IconButton
+          variant='outline'
+          colorScheme='teal'
+          aria-label='Go forward'
+          icon={<ArrowForwardIcon />}
+          onClick={handleOpenNextPage}
+          isDisabled={selectedPage === totalPages}
+        />
+      </Box>
     </>
+  );
+}
+
+function App() {
+  // const data = { ...cache.data, ...cache.changes };
+
+  return (
+    <Container width='100vw' height='100vh'>
+      <Button
+        onClick={() => {
+          // if (!selectedNodeId) {
+          //   return;
+          // }
+          // cache.add('New node', selectedNodeId);
+          // setSelectedNodeId(null);
+        }}
+      >
+        Add new node
+      </Button>
+      <Box display='flex'>
+        <Box flex={1} />
+        <Box flex={1}>
+          <DBTreeView />
+        </Box>
+      </Box>
+    </Container>
   );
 }
 
