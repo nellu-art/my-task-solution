@@ -24,7 +24,7 @@ const defaultData = {
   'child 1.1': {
     id: 'child 1.1',
     value: 'child 1.1',
-    children: ['child 1.1.1'],
+    children: ['child 1.1.1', 'child 1.1.2'],
     parentId: 'child 1',
     deleted: false,
   },
@@ -40,6 +40,27 @@ const defaultData = {
     value: 'child 1.1.1.1',
     children: [],
     parentId: 'child 1.1.1',
+    deleted: false,
+  },
+  'child 1.1.2': {
+    id: 'child 1.1.2',
+    value: 'child 1.1.2',
+    children: ['child 1.1.2.1'],
+    parentId: 'child 1.1',
+    deleted: false,
+  },
+  'child 1.1.2.1': {
+    id: 'child 1.1.2.1',
+    value: 'child 1.1.2.1',
+    children: ['1.1.2.1.1'],
+    parentId: 'child 1.1.2',
+    deleted: false,
+  },
+  '1.1.2.1.1': {
+    id: '1.1.2.1.1',
+    value: '1.1.2.1.1',
+    children: [],
+    parentId: 'child 1.1.2.1',
     deleted: false,
   },
 };
