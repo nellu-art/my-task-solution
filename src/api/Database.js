@@ -97,10 +97,15 @@ export class Database {
     Object.keys(changes).forEach((id) => {
       const prevEl = this.data[id];
       const newEl = changes[id];
-      if (prevEl && newEl.deleted) {
-        markNodeAsDeleted(prevEl, this.data);
+      this.data[id] = { ...cloneDeep(prevEl), ...cloneDeep(newEl) };
+    });
+
+    Object.keys(changes).forEach((id) => {
+      const element = this.data[id];
+
+      if (element.deleted) {
+        markNodeAsDeleted(element, this.data);
       }
-      this.data[id] = { ...cloneDeep(this.data[id]), ...cloneDeep(changes[id]) };
     });
   }
 
