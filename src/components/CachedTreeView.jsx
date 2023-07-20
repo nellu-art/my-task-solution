@@ -4,7 +4,7 @@ import { Box, Button } from '@chakra-ui/react';
 import { AddIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { isEmpty, merge } from 'lodash';
 
-import { addNodeToCache, editNode, deleteNode, saveChanges } from '../api/endpoints';
+import { addNodeToCache, editNode, deleteNode, saveChanges, cancelChanges } from '../api/endpoints';
 import { isChildOf } from '../utils/isChildOf';
 
 import { RenderNode } from './RenderNode';
@@ -55,7 +55,15 @@ export function CachedTreeView({ cache, refresh, renderActions }) {
           >
             Apply
           </Button>
-          <Button isDisabled={!hasChanges}>Cancel</Button>
+          <Button
+            isDisabled={!hasChanges}
+            onClick={() => {
+              cancelChanges();
+              refresh();
+            }}
+          >
+            Cancel
+          </Button>
         </Box>
       )}
       <Box height='500px' border='1px solid black' p={2} overflow='auto'>

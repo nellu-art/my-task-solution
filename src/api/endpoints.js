@@ -25,6 +25,10 @@ export function saveChanges() {
   cache.save();
 }
 
+export function cancelChanges() {
+  cache.cancel();
+}
+
 export function readCache() {
   return { data: cloneDeep(cache.data), changes: cloneDeep(cache.changes) };
 }

@@ -44,7 +44,13 @@ export function RenderNode({
 const Node = ({ value, leftOffset, deleted, isEditable, selected, onSelect, onEditDone }) => {
   if (isEditable) {
     return (
-      <Editable defaultValue={value} isDisabled={deleted} ml={`${leftOffset}px`} startWithEditView>
+      <Editable
+        defaultValue={value}
+        isDisabled={deleted}
+        ml={`${leftOffset}px`}
+        startWithEditView
+        onSubmit={onEditDone}
+      >
         <EditablePreview />
         <EditableInput onBlur={(e) => onEditDone(e.target.value)} />
       </Editable>
