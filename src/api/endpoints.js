@@ -13,6 +13,10 @@ export function addNodeToCache(value, parentId) {
   cache.add(value, parentId);
 }
 
+export function editNode(id, value) {
+  cache.edit(id, value);
+}
+
 export function readCache() {
   return { ...cloneDeep(cache.data), ...cloneDeep(cache.changes) };
 }

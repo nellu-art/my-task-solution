@@ -2,9 +2,21 @@ import { PropTypes } from 'prop-types';
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 import { Box, Button, Container, IconButton, Badge } from '@chakra-ui/react';
-import { ArrowBackIcon, ArrowForwardIcon, ArrowLeftIcon, AddIcon } from '@chakra-ui/icons';
+import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  ArrowLeftIcon,
+  AddIcon,
+  EditIcon,
+} from '@chakra-ui/icons';
 
-import { readDatabase, readCache, loadNodeToCache, addNodeToCache } from './api/endpoints';
+import {
+  readDatabase,
+  readCache,
+  loadNodeToCache,
+  addNodeToCache,
+  editNode,
+} from './api/endpoints';
 
 import { RenderNode } from './components/RenderNode';
 
@@ -162,6 +174,7 @@ function mapNodeChildrenWithCacheData(node, cache) {
 
 function CachedTreeView({ cache, refresh }) {
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [editNodeId, setEditNodeId] = useState(null);
 
   const displayNodes = Object.values(cache)
     .map((node) => mapNodeChildrenWithCacheData(node, cache))
@@ -188,11 +201,22 @@ function CachedTreeView({ cache, refresh }) {
               nestingLevel={0}
               onSelectNode={setSelectedNodeId}
               selectedNodeId={selectedNodeId}
+              isEditable
+              editNodeId={editNodeId}
+              onEditDone={(nextValue) => {
+                if (!editNodeId) {
+                  return;
+                }
+
+                editNode(editNodeId, nextValue);
+                refresh();
+                setEditNodeId(null);
+              }}
             />
           );
         })}
       </Box>
-      <Box mt={3} display='flex' alignItems='center'>
+      <Box mt={3} display='flex' alignItems='center' gap={2}>
         <Button
           leftIcon={<AddIcon />}
           colorScheme='blue'
@@ -209,6 +233,22 @@ function CachedTreeView({ cache, refresh }) {
           }}
         >
           Add
+        </Button>
+        <Button
+          leftIcon={<EditIcon />}
+          colorScheme='blue'
+          variant='outline'
+          isDisabled={!selectedNodeId}
+          onClick={() => {
+            if (!selectedNodeId) {
+              return;
+            }
+
+            setEditNodeId(selectedNodeId);
+            setSelectedNodeId(null);
+          }}
+        >
+          Edit
         </Button>
       </Box>
     </>

@@ -7,6 +7,8 @@ export function RenderNode({
   onSelectNode,
   selectedNodeId,
   isEditable = false,
+  editNodeId,
+  onEditDone,
 }) {
   return (
     <>
@@ -16,7 +18,8 @@ export function RenderNode({
           leftOffset={nestingLevel * 16}
           selected={selectedNodeId === node.id}
           onSelect={() => onSelectNode(node.id)}
-          isEditable={isEditable}
+          isEditable={isEditable && editNodeId === node.id}
+          onEditDone={onEditDone}
         />
       </Box>
       {node.children.map((child) => {
@@ -28,6 +31,8 @@ export function RenderNode({
             onSelectNode={onSelectNode}
             selectedNodeId={selectedNodeId}
             isEditable={isEditable}
+            editNodeId={editNodeId}
+            onEditDone={onEditDone}
           />
         );
       })}
@@ -35,12 +40,12 @@ export function RenderNode({
   );
 }
 
-const Node = ({ value, leftOffset, deleted, isEditable, selected, onSelect }) => {
+const Node = ({ value, leftOffset, deleted, isEditable, selected, onSelect, onEditDone }) => {
   if (isEditable) {
     return (
-      <Editable defaultValue={value} isDisabled={deleted}>
+      <Editable defaultValue={value} isDisabled={deleted} ml={`${leftOffset}px`} startWithEditView>
         <EditablePreview />
-        <EditableInput />
+        <EditableInput onBlur={(e) => onEditDone(e.target.value)} />
       </Editable>
     );
   }
@@ -65,6 +70,7 @@ Node.propTypes = {
   isEditable: PropTypes.bool,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
+  onEditDone: PropTypes.func,
 };
 
 RenderNode.propTypes = {
@@ -73,4 +79,6 @@ RenderNode.propTypes = {
   onSelectNode: PropTypes.func.isRequired,
   selectedNodeId: PropTypes.string,
   isEditable: PropTypes.bool,
+  editNodeId: PropTypes.string,
+  onEditDone: PropTypes.func,
 };

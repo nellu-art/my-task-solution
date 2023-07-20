@@ -15,14 +15,16 @@ export class Cache {
   add(value, parentId) {
     const element = new Node(value, parentId);
     this.changes[element.id] = element;
+    const parentElement = this.changes[parentId] ?? this.data[parentId];
     this.changes[parentId] = {
-      ...(this.changes[parentId] ?? this.data[parentId]),
-      children: [...(this.changes[parentId] ?? this.data[parentId]).children, element.id],
+      ...parentElement,
+      children: [...parentElement.children, element.id],
     };
   }
 
   edit(id, value) {
-    this.changes[id] = { ...this.data[id], value };
+    const element = this.changes[id] ?? this.data[id];
+    this.changes[id] = { ...element, value };
   }
 
   delete(id) {
