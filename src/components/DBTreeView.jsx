@@ -25,19 +25,19 @@ export function DBTreeView({ renderActionToPortal, onCacheChanged, isDBUpdated, 
     offset: 0,
   });
 
-  const displayNodes = nodes.reduce((result, node, _, list) => {
-    const isIncluded = result.some((item) => isChildOf(node, item));
+  const displayNodes = nodes
+    .map((node) => mapNodeChildrenWithData(node, nodes))
+    .reduce((result, node, _, list) => {
+      const isIncluded = list.some((item) => isChildOf(node, item));
 
-    if (isIncluded) {
+      if (isIncluded) {
+        return result;
+      }
+
+      result.push(node);
+
       return result;
-    }
-
-    const newNode = mapNodeChildrenWithData(node, list);
-
-    result.push(newNode);
-
-    return result;
-  }, []);
+    }, []);
 
   const totalPages = Math.ceil(pagination.total / pagination.limit);
   const selectedPage = Math.floor(pagination.offset / pagination.limit) + 1;
