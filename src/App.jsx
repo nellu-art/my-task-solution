@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
-import { Box, Container } from '@chakra-ui/react';
+import { Box, Container, Badge } from '@chakra-ui/react';
 
 import { readCache } from './api/endpoints';
 
@@ -49,8 +49,13 @@ function App() {
   }, [isCacheStale, setIsCacheStale]);
 
   return (
-    <Container width='100vw' height='100vh' pt={10} maxWidth='60vw'>
-      <Box ref={topContainerRef} maxWidth='45%' pr={4} />
+    <Container width='100vw' height='100vh' pt={10} maxWidth='container.lg'>
+      <Box display='flex' justifyContent='space-between'>
+        <Box ref={topContainerRef} maxWidth='45%' pr={4} flex={1} />
+        <Box flex={1} display='flex' maxWidth='45%' justifyContent='center' alignItems='center'>
+          <Badge colorScheme='purple'>Select node to start</Badge>
+        </Box>
+      </Box>
       <Box display='flex' gap={4}>
         <Box flex={1} maxWidth='45%'>
           <CachedTreeView

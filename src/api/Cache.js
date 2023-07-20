@@ -35,7 +35,8 @@ export class Cache {
     }
 
     if (!element.parentId) {
-      throw new Error('Cannot delete root node');
+      console.error('Cannot delete root node');
+      return;
     }
 
     this.changes[id] = { ...element, deleted: true };
