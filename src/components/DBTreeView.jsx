@@ -18,7 +18,7 @@ function mapNodeChildrenWithData(node, data) {
   };
 }
 
-export function DBTreeView({ renderActionToPortal, onCacheChanged }) {
+export function DBTreeView({ renderActionToPortal, onCacheChanged, isDBUpdated, onDoneDBUpdate }) {
   const [nodes, setNodes] = useState([]);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [pagination, setPagination] = useState({
@@ -83,6 +83,26 @@ export function DBTreeView({ renderActionToPortal, onCacheChanged }) {
     }
   }, [pagination.offset]);
 
+  useEffect(() => {
+    if (!isDBUpdated) {
+      return;
+    }
+
+    const fetchData = async () => {
+      const newData = await readDatabase(pagination.offset);
+
+      setNodes(newData.data);
+      setPagination(newData.pagination);
+    };
+
+    try {
+      fetchData();
+      onDoneDBUpdate();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [isDBUpdated, onDoneDBUpdate, pagination.offset]);
+
   return (
     <>
       {renderActionToPortal(
@@ -145,4 +165,6 @@ export function DBTreeView({ renderActionToPortal, onCacheChanged }) {
 DBTreeView.propTypes = {
   renderActionToPortal: PropTypes.func.isRequired,
   onCacheChanged: PropTypes.func.isRequired,
+  isDBUpdated: PropTypes.bool.isRequired,
+  onDoneDBUpdate: PropTypes.func.isRequired,
 };

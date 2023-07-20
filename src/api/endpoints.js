@@ -21,8 +21,12 @@ export function deleteNode(id) {
   cache.delete(id);
 }
 
+export function saveChanges() {
+  cache.save();
+}
+
 export function readCache() {
-  return { ...cloneDeep(cache.data), ...cloneDeep(cache.changes) };
+  return { data: cloneDeep(cache.data), changes: cloneDeep(cache.changes) };
 }
 
 export function readDatabase(offset) {

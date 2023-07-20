@@ -29,6 +29,15 @@ export class Cache {
 
   delete(id) {
     const element = this.changes[id] ?? this.data[id];
+
+    if (!element) {
+      return;
+    }
+
+    if (!element.parentId) {
+      throw new Error('Cannot delete root node');
+    }
+
     this.changes[id] = { ...element, deleted: true };
     element.children.forEach((childId) => {
       this.delete(childId);

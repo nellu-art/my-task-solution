@@ -44,7 +44,7 @@ const defaultData = {
   },
 };
 
-const DEFAULT_LIMIT = 5;
+const DEFAULT_LIMIT = 10;
 
 export class Database {
   constructor() {
@@ -65,8 +65,21 @@ export class Database {
       throw new Error('Invalid changes');
     }
 
+    function markNodeAsDeleted(node, data) {
+      data[node.id] = { ...node, deleted: true };
+
+      node.children.forEach((childId) => {
+        markNodeAsDeleted(data[childId], data);
+      });
+    }
+
     Object.keys(changes).forEach((id) => {
-      this.data[id] = { ...this.data[id], ...changes[id] };
+      const prevEl = this.data[id];
+      const newEl = changes[id];
+      if (prevEl && newEl.deleted) {
+        markNodeAsDeleted(prevEl, this.data);
+      }
+      this.data[id] = { ...cloneDeep(this.data[id]), ...cloneDeep(changes[id]) };
     });
   }
 

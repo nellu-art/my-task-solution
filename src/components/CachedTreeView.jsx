@@ -2,8 +2,9 @@ import { PropTypes } from 'prop-types';
 import { useState } from 'react';
 import { Box, Button } from '@chakra-ui/react';
 import { AddIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
+import { isEmpty, merge } from 'lodash';
 
-import { addNodeToCache, editNode, deleteNode } from '../api/endpoints';
+import { addNodeToCache, editNode, deleteNode, saveChanges } from '../api/endpoints';
 import { isChildOf } from '../utils/isChildOf';
 
 import { RenderNode } from './RenderNode';
@@ -18,12 +19,14 @@ function mapNodeChildrenWithCacheData(node, cache) {
   };
 }
 
-export function CachedTreeView({ cache, refresh }) {
+export function CachedTreeView({ cache, refresh, renderActions }) {
   const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [editNodeId, setEditNodeId] = useState(null);
 
-  const displayNodes = Object.values(cache)
-    .map((node) => mapNodeChildrenWithCacheData(node, cache))
+  const allChanges = merge(cache.data, cache.changes);
+
+  const displayNodes = Object.values(allChanges)
+    .map((node) => mapNodeChildrenWithCacheData(node, allChanges))
     .reduce((result, node, _, list) => {
       const isIncluded = list.some((item) => isChildOf(node, item));
 
@@ -36,8 +39,25 @@ export function CachedTreeView({ cache, refresh }) {
       return result;
     }, []);
 
+  const hasChanges = !isEmpty(cache.changes);
+
   return (
     <>
+      {renderActions(
+        <Box display='flex' mb={3} gap={3}>
+          <Button
+            colorScheme='green'
+            isDisabled={!hasChanges}
+            onClick={() => {
+              saveChanges();
+              refresh({ dbUpdated: true });
+            }}
+          >
+            Apply
+          </Button>
+          <Button isDisabled={!hasChanges}>Cancel</Button>
+        </Box>
+      )}
       <Box height='500px' border='1px solid black' p={2} overflow='auto'>
         {displayNodes.map((node) => {
           return (
@@ -123,4 +143,5 @@ export function CachedTreeView({ cache, refresh }) {
 CachedTreeView.propTypes = {
   cache: PropTypes.object.isRequired,
   refresh: PropTypes.func.isRequired,
+  renderActions: PropTypes.func.isRequired,
 };

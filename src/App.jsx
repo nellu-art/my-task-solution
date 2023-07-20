@@ -8,10 +8,12 @@ import { DBTreeView } from './components/DBTreeView';
 import { CachedTreeView } from './components/CachedTreeView';
 
 function App() {
+  const topContainerRef = useRef(null);
   const middleItemRef = useRef(null);
 
   const [cache, setCache] = useState({});
   const [isCacheStale, setIsCacheStale] = useState(false);
+  const [isDBUpdated, setIsDBUpdated] = useState(false);
 
   useEffect(() => {
     const fetchCacheData = async () => {
@@ -48,9 +50,21 @@ function App() {
 
   return (
     <Container width='100vw' height='100vh' pt={10} maxWidth='60vw'>
+      <Box ref={topContainerRef} />
       <Box display='flex' gap={4}>
         <Box flex={1} maxWidth='45%'>
-          <CachedTreeView cache={cache} refresh={() => setIsCacheStale(true)} />
+          <CachedTreeView
+            cache={cache}
+            refresh={(options) => {
+              setIsCacheStale(true);
+              if (options?.dbUpdated) {
+                setIsDBUpdated(true);
+              }
+            }}
+            renderActions={(children) =>
+              topContainerRef.current && createPortal(children, topContainerRef.current)
+            }
+          />
         </Box>
         <Box ref={middleItemRef} display='flex' alignItems='center' height='500px' />
         <Box flex={1} maxWidth='45%'>
@@ -59,6 +73,8 @@ function App() {
               middleItemRef.current && createPortal(children, middleItemRef.current)
             }
             onCacheChanged={() => setIsCacheStale(true)}
+            isDBUpdated={isDBUpdated}
+            onDoneDBUpdated={() => setIsDBUpdated(false)}
           />
         </Box>
       </Box>
