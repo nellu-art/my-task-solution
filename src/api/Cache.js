@@ -10,6 +10,11 @@ export class Cache {
   fetch(id) {
     const element = this.database.getNode(id);
     this.data[id] = element;
+
+    const parentElement = this.changes[element.parentId] ?? this.data[element.parentId];
+    if (parentElement && parentElement.deleted) {
+      this.delete(element.id);
+    }
   }
 
   add(value, parentId) {
