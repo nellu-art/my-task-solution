@@ -9,6 +9,10 @@ export function loadNodeToCache(id) {
   cache.fetch(id);
 }
 
+export function addNodeToCache(value, parentId) {
+  cache.add(value, parentId);
+}
+
 export function readCache() {
   return { ...cloneDeep(cache.data), ...cloneDeep(cache.changes) };
 }

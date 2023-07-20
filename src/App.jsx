@@ -2,9 +2,9 @@ import { PropTypes } from 'prop-types';
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 import { Box, Button, Container, IconButton, Badge } from '@chakra-ui/react';
-import { ArrowBackIcon, ArrowForwardIcon, ArrowLeftIcon } from '@chakra-ui/icons';
+import { ArrowBackIcon, ArrowForwardIcon, ArrowLeftIcon, AddIcon } from '@chakra-ui/icons';
 
-import { readDatabase, readCache, loadNodeToCache } from './api/endpoints';
+import { readDatabase, readCache, loadNodeToCache, addNodeToCache } from './api/endpoints';
 
 import { RenderNode } from './components/RenderNode';
 
@@ -160,42 +160,8 @@ function mapNodeChildrenWithCacheData(node, cache) {
   };
 }
 
-function CachedTreeView({ isCacheStale, onCacheUpdated }) {
-  const [cache, setCache] = useState({});
+function CachedTreeView({ cache, refresh }) {
   const [selectedNodeId, setSelectedNodeId] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const newData = await readCache();
-
-      setCache(newData);
-    };
-
-    try {
-      fetchData();
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isCacheStale) {
-      return;
-    }
-
-    const fetchData = async () => {
-      const newData = await readCache();
-
-      setCache(newData);
-    };
-
-    try {
-      fetchData();
-      onCacheUpdated();
-    } catch (error) {
-      console.error(error);
-    }
-  }, [isCacheStale, onCacheUpdated]);
 
   const displayNodes = Object.values(cache)
     .map((node) => mapNodeChildrenWithCacheData(node, cache))
@@ -226,25 +192,76 @@ function CachedTreeView({ isCacheStale, onCacheUpdated }) {
           );
         })}
       </Box>
+      <Box mt={3} display='flex' alignItems='center'>
+        <Button
+          leftIcon={<AddIcon />}
+          colorScheme='blue'
+          variant='outline'
+          isDisabled={!selectedNodeId}
+          onClick={() => {
+            if (!selectedNodeId) {
+              return;
+            }
+
+            addNodeToCache(`child ${Date.now()}`, selectedNodeId);
+            refresh();
+            setSelectedNodeId(null);
+          }}
+        >
+          Add
+        </Button>
+      </Box>
     </>
   );
 }
 
 function App() {
   const middleItemRef = useRef(null);
+
+  const [cache, setCache] = useState({});
   const [isCacheStale, setIsCacheStale] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const newData = await readCache();
+
+      setCache(newData);
+    };
+
+    try {
+      fetchData();
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isCacheStale) {
+      return;
+    }
+
+    const fetchData = async () => {
+      const newData = await readCache();
+
+      setCache(newData);
+    };
+
+    try {
+      fetchData();
+      setIsCacheStale(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [isCacheStale, setIsCacheStale]);
 
   return (
     <Container width='100vw' height='100vh' pt={10} maxWidth='60vw'>
       <Box display='flex' gap={4}>
-        <Box flex={1} maxWidth='50%'>
-          <CachedTreeView
-            isCacheStale={isCacheStale}
-            onCacheUpdated={() => setIsCacheStale(false)}
-          />
+        <Box flex={1} maxWidth='45%'>
+          <CachedTreeView cache={cache} refresh={() => setIsCacheStale(true)} />
         </Box>
         <Box ref={middleItemRef} display='flex' alignItems='center' height='500px' />
-        <Box flex={1} maxWidth='50%'>
+        <Box flex={1} maxWidth='45%'>
           <DBTreeView
             renderActionToPortal={(children) =>
               middleItemRef.current && createPortal(children, middleItemRef.current)
@@ -265,6 +282,6 @@ DBTreeView.propTypes = {
 };
 
 CachedTreeView.propTypes = {
-  isCacheStale: PropTypes.bool,
-  onCacheUpdated: PropTypes.func.isRequired,
+  cache: PropTypes.object.isRequired,
+  refresh: PropTypes.func.isRequired,
 };
