@@ -88,9 +88,9 @@ export class Database {
   }
 
   read(offset) {
-    const start = offset ?? 0;
-    const end = start + DEFAULT_LIMIT;
     const dbNodes = Object.values(this.data);
+    const start = (offset ?? 0) > dbNodes.length ? 0 : offset ?? 0;
+    const end = start + DEFAULT_LIMIT;
 
     return {
       data: dbNodes.slice(start, end),
